@@ -27,6 +27,14 @@ export function SignupForm() {
     setLoading(true)
 
     try {
+      if (!name.trim() || !email.trim() || !password.trim()) {
+        setError("Please fill in all fields")
+        setLoading(false)
+        return
+      }
+
+      console.log("[v0] Submitting signup with:", { name, email, userType })
+
       const response = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -34,6 +42,7 @@ export function SignupForm() {
       })
 
       const data = await response.json()
+      console.log("[v0] Signup response:", { status: response.status, data })
 
       if (!response.ok) {
         setError(data.message || "Signup failed")
@@ -45,7 +54,8 @@ export function SignupForm() {
       localStorage.setItem("userType", data.userType)
       router.push(userType === "donor" ? "/donor" : "/receptor")
     } catch (err) {
-      setError("An error occurred. Please try again.")
+      console.log("[v0] Signup catch error:", err instanceof Error ? err.message : String(err))
+      setError(err instanceof Error ? err.message : "An error occurred. Please try again.")
     } finally {
       setLoading(false)
     }
